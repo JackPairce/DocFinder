@@ -1,0 +1,6 @@
+{
+    "python.analysis.typeCheckingMode": "standard",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.extraPaths": ["./"],
+    "python.envFile": "${workspaceFolder}/backend/.env"
+}

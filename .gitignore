@@ -1,9 +1,10 @@
 # database
 /database/data/
 
+
 # backend
-__pycache__/
-*.pyc
+__pycache__
+backend/*.pyc
 
 # frontend
 frontend/node_modules
