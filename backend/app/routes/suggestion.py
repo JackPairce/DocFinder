@@ -1,8 +1,7 @@
 from typing import List
 from flask import Blueprint, request, jsonify
 from ..utils.text_processing import TextProcessor
-from ..types import InputText
-
+from typing import TypedDict, Literal
 
 bp = Blueprint("suggestion", __name__)
 
@@ -32,3 +31,9 @@ def suggest():
         return jsonify(books_id)
     except:
         return "Internal server error", 500
+
+class InputText(TypedDict):
+    Text: str
+
+
+Language = Literal["english", "french"]

@@ -1,7 +1,8 @@
 import os
+from database.queries import Queries
+from database.models import Book, BookVector
 from database.connection import Connection
-from utils.file_operations import download_file
-from utils.file_operations import read_csv
+from utils.file_operations import download_file, read_csv
 from utils.text_processing import process_text
 from utils.file_operations import get_book_by_id
 
@@ -88,7 +89,24 @@ if __name__ == "__main__":
     data["Book_content_vector"] = data["id"].apply(get_book_by_id)
 
     # Save the data in the database respectively.
-    
+    queryHandler = Queries(db.get_session())
+    for _, row in data.iterrows():
+        book = Book(
+            id=row["id"],
+            title=row["title"],
+            language=row["Language"],
+            authors=row["authors"],
+            issued=row["issued"],
+        )
+        book_vector = BookVector(
+            id=row["id"],
+            subjects_vector=row["subject_vector"],
+            content_vector=row["Book_content_vector"],
+        )
+
+        queryHandler.insert(book)
+        queryHandler.insert(book_vector)
+
 
 
     ...
