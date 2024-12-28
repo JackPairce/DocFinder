@@ -19,14 +19,12 @@ if __name__ == "__main__":
         4. Delete column  LoCC
         5. Filter "Type" by "Text" only
         6. Filter "Languages" by "en" and "fr" only and rename "en" to 'english' and "fr" to 'french'
-        7. Bookshelves column contains a list of bookshelves separated by ';'. Split the column into a list of bookshelves and store it in a new column called "Bookshelves_vector".
-        8. Tokenize the "Booksheves_vector" column and save it on same column.
-        9. use Sentence Transformers (all-MiniLM-L6-v2) to encode the "Bookshelves_vector" column and save it on same column.
-        10. Save the data in the database respectively.
+        7. use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
+        8. for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
+        9. Save the data in the database respectively.
 
     Tips:
         - Use the `pandas` library to manipulate the data.
-        - Use the `nltk` library to tokenize the text.
         - Use the `transformers` library to encode the text.
         - Use the `psycopg2` library to connect to the database
         - Use the `tqdm` library to display a progress bar.
@@ -34,10 +32,6 @@ if __name__ == "__main__":
         - Make sure to handle any exceptions that may occur.
         - Use logging each step done (you can use the `setup_logger` function from the `logging_utils` module).
     """
-    # download nltk data
-    nltk.download("punkt")
-    nltk.download("stopwords")
-
     #! set up logger
 
     # get environment variables

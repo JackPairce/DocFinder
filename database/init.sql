@@ -6,13 +6,7 @@ CREATE TABLE books (
     language TEXT,
     authors TEXT[],
     subjects TEXT[],
-    bookshelve TEXT[]
-);
-
--- Categories table
-CREATE TABLE bookshelves (
-    id SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
+    cover_url TEXT,
 );
 
 -- Vectors table

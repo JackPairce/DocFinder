@@ -10,4 +10,3 @@ backend/*.pyc
 frontend/node_modules
 
 
-.env

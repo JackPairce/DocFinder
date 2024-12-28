@@ -50,7 +50,7 @@ def read_csv(path: str) -> pd.DataFrame:
     """
     if not os.path.exists(path):
         raise FileNotFoundError(f"File {path} not found")
-    return pd.read_csv(path)  # type: ignore
+    return pd.read_csv(path)
 
 
 def remove_file(path: str) -> None:
@@ -66,3 +66,19 @@ def remove_file(path: str) -> None:
     if not os.path.exists(path):
         raise FileNotFoundError(f"File {path} not found")
     os.remove(path)
+
+
+def get_book_by_id(id: int) -> str:
+    """
+    Get the book content by id from the given URL.
+
+    Args:
+        id (int): The id of the book.
+
+    Returns:
+        str: The content of the book.
+    """
+    url = f"https://www.gutenberg.org/cache/epub/{id}/pg{id}.txt"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.text
