@@ -4,7 +4,15 @@ from ..utils.text_processing import TextProcessor
 from ..utils.database import Connect_to_database
 from ..database.queries import Queries
 from ..database.models import BookVector
-from ..types import InputText
+from typing import TypedDict, Literal
+
+
+class InputText(TypedDict):
+    Text: str
+
+
+Language = Literal["english", "french"]
+
 
 # create a blueprint
 bp = Blueprint("suggestion", __name__)
@@ -17,7 +25,7 @@ query_handler = Queries(connection)
 books_embedding = query_handler.get_all(BookVector())
 print(f"{books_embedding = }")
 
-book_embedding_model = TextProcessor([])
+book_embedding_model = TextProcessor(books_embedding)
 
 
 @bp.route("/suggest", methods=["POST"])

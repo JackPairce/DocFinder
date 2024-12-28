@@ -7,10 +7,13 @@ class Book(Base["Book"]):
     __tablename__ = "books"
 
     id = mapped_column(type_=Integer, primary_key=True)
+    issued = Column(String, nullable=True)
     title = Column(String, nullable=False)
     language = Column(String, nullable=False)
     authors = Column(String, nullable=True)
-    issued = Column(String, nullable=True)
+    subjects = Column(String, nullable=True)
+    bookshelf = Column(String, nullable=True)
+    cover_url = Column(String, nullable=True)
 
     # Relationships
     vectors = relationship("BookVector", back_populates="book", uselist=False)

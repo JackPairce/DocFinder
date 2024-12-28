@@ -6,6 +6,7 @@ CREATE TABLE books (
     language TEXT,
     authors TEXT[],
     subjects TEXT[],
+    bookshelves TEXT[],
     cover_url TEXT
 );
 
