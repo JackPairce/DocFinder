@@ -1,7 +1,8 @@
 from flask import Blueprint
 
-bp = Blueprint('hello', __name__)
+bp = Blueprint("hello", __name__)
 
-@bp.route('/')
+
+@bp.route("/")
 def hello():
-    return 'Hello, World!'
+    return "Hello to Docfinder system!"
