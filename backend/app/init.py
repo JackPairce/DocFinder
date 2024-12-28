@@ -1,9 +1,10 @@
-from typing import List
 import os
-import nltk
 from database.connection import Connection
 from utils.file_operations import download_file
 from utils.file_operations import read_csv
+from utils.text_processing import process_text
+from utils.file_operations import get_book_by_id
+
 
 if __name__ == "__main__":
     """
@@ -67,5 +68,27 @@ if __name__ == "__main__":
     download_file(LNK, CSV_FILE)
     # read the csv file
     data = read_csv(CSV_FILE)
+    data.rename(columns={"Text#": "id"}, inplace=True)
+    data.drop(columns=["LoCC"], inplace=True)
+
+    # Filter "Type" by "Text" only
+    data = data[data["Type"] == "Text"]
+
+    # Filter "Languages" by "en" and "fr", and rename them
+    data = data[data["Language"].isin(["en", "fr"])]
+    data["Language"] = data["Language"].replace({"en": "english", "fr": "french"})
+
+    # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
+    # issued, authors, title, subjects
+    data["subject_vector"] = data.apply(lambda row: f"{row['issued']} {row['authors']} {row['title']} {row['subjects']} {row['bookshelves']}", axis=1)
+    data["subject_vector"] = data["subject_vector"].apply(process_text)
+    print(data["subject_vector"])
+
+    # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
+    data["Book_content_vector"] = data["id"].apply(get_book_by_id)
+
+    # Save the data in the database respectively.
+    
+
 
     ...
