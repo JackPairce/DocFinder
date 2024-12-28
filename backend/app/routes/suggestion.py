@@ -25,7 +25,7 @@ query_handler = Queries(connection)
 books_embedding = query_handler.get_all(BookVector())
 print(f"{books_embedding = }")
 
-book_embedding_model = TextProcessor(books_embedding)
+book_embedding_model = TextProcessor([])
 
 
 @bp.route("/suggest", methods=["POST"])
@@ -53,6 +53,7 @@ def suggest():
         return jsonify(books_id)
     except:
         return "Internal server error", 500
+
 
 class InputText(TypedDict):
     Text: str
