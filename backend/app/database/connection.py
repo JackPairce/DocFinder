@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 from psycopg2 import OperationalError
 
 
@@ -37,7 +37,7 @@ class Connection:
             self.engine.dispose()
             print("Connection closed")
 
-    def get_session(self):
+    def get_session(self) -> Session:
         if self.SessionLocal is None:
             raise ConnectionError("Database connection is not established")
         return self.SessionLocal()

@@ -1,4 +1,9 @@
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
+from typing import Generic, TypeVar
+
+TBase = TypeVar("TBase", bound="Base")
+
 
 # Create the declarative base
-Base = declarative_base()
+class Base(DeclarativeBase, Generic[TBase]):
+    pass

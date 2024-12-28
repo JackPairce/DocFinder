@@ -8,6 +8,8 @@ COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN make init
+RUN pip install --no-cache-dir -r requirements.txt
+
+# RUN make init
 
 # CMD ["make", "run"]

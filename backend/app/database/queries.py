@@ -1,6 +1,7 @@
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from app.database.base import Base
+from .base import Base, TBase
 
 
 class Queries:
@@ -18,7 +19,7 @@ class Queries:
 
     def get_id(self, model: Base, id: int):
         try:
-            data = self.session.query(model).filter_by(id=id).first()
+            data = self.session.query(model.__table__).filter_by(id=id).first()
             return data
         except SQLAlchemyError as e:
             raise Exception(f"Failed to get data: {e}")
@@ -37,9 +38,9 @@ class Queries:
             self.session.rollback()
             raise Exception(f"Failed to update data: {e}")
 
-    def get_all(self, model: Base):
+    def get_all(self, model: TBase) -> List[TBase]:
         try:
-            data = self.session.query(model).all()
+            data = self.session.query(model.__table__).all()
             return data
         except SQLAlchemyError as e:
             raise Exception(f"Failed to get data: {e}")

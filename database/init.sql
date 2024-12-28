@@ -6,7 +6,8 @@ CREATE TABLE books (
     language TEXT,
     authors TEXT[],
     subjects TEXT[],
-    cover_url TEXT,
+    bookshelves TEXT[],
+    cover_url TEXT
 );
 
 -- Vectors table

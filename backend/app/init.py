@@ -36,33 +36,13 @@ if __name__ == "__main__":
     """
     #! set up logger
 
-    # get environment variables
-    URL = os.environ.get("DATABASE_URL")
-    if URL is None:
-        raise ValueError("DATABASE_URL is not set")
-
-    DBNAME = os.environ.get("POSTGRES_DB")
-    USER = os.environ.get("POSTGRES_USER")
-    PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-    HOST, PORT = URL.split(":")
+    # connect to database
+    connection = Connect_to_database()
 
     # the link of the csv file
     LNK = os.environ.get("PG_CATALOG")
     if LNK is None:
         raise ValueError("PG_CATALOG is not set")
-
-    if DBNAME is None or USER is None or PASSWORD is None:
-        raise ValueError("Invalid DATABASE_URL")
-
-    # connect to the database
-    db = Connection(
-        dbname=DBNAME,
-        user=USER,
-        password=PASSWORD,
-        host=HOST,
-        port=int(PORT),
-    )
-    db.connect()
 
     CSV_FILE = "/tmp/pg_catalog.csv"
     # download the csv file
@@ -81,7 +61,10 @@ if __name__ == "__main__":
 
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
-    data["subject_vector"] = data.apply(lambda row: f"{row['issued']} {row['authors']} {row['title']} {row['subjects']} {row['bookshelves']}", axis=1)
+    data["subject_vector"] = data.apply(
+        lambda row: f"{row['issued']} {row['authors']} {row['title']} {row['subjects']} {row['bookshelves']}",
+        axis=1,
+    )
     data["subject_vector"] = data["subject_vector"].apply(process_text)
     print(data["subject_vector"])
 
