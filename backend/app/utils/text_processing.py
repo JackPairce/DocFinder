@@ -28,3 +28,29 @@ def process_text(text: str) -> np.ndarray:
     model = SentenceTransformer("all-MiniLM-L6-v2")
     embeddings = model.encode(text).numpy()
     return embeddings
+
+def process_content(content: str) -> str:
+    """
+    Extracts the main content of the book, removing the bonus content.
+
+    Args:
+        content (str): The full text of the book.
+
+    Returns:
+        str: The main content of the book without the bonus content.
+    """
+    start_marker = "*** START OF THE PROJECT GUTENBERG EBOOK"
+    end_marker = "*** END OF THE PROJECT GUTENBERG EBOOK"
+
+    start_index = content.find(start_marker)
+    end_index = content.find(end_marker)
+
+    if start_index != -1:
+        # Move to the end of the start marker line
+        start_index = content.find("\n", start_index) + 1
+    
+    if end_index != -1:
+        # Get content before the end marker line
+        content = content[:end_index]
+
+    return content[start_index:] if start_index != -1 else content
