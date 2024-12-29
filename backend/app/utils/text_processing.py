@@ -10,7 +10,7 @@ class TextProcessor:
         self.documents_embeddings = doc_embedding
 
     def most_similar(self, query: str, P=0.5) -> List[int]:
-        query_embedding = self.model.encode(query).numpy()
+        query_embedding: np.ndarray = self.model.encode(query)  # type: ignore
         similarity: np.ndarray = cosine_similarity(
             np.array([query_embedding]), np.array(self.documents_embeddings)
         )[0]
@@ -21,13 +21,12 @@ class TextProcessor:
             P = float(f"0.{nb}")
 
         most_similar_index = [i for i in most_similar_index if similarity[i] > P]
-        return list(np.array(most_similar_index, dtype=int))
+        return np.array(most_similar_index, dtype=int).tolist()  # type: ignore
 
 
-def process_text(text: str) -> np.ndarray:
+def process_text(text: str | List[str]) -> List[float] | List[List[float]]:
     model = SentenceTransformer("all-MiniLM-L6-v2")
-    embeddings = model.encode(text).numpy()
-    return embeddings
+    return model.encode(text).tolist() 
 
 def process_content(content: str) -> str:
     """

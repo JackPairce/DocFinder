@@ -5,6 +5,7 @@ from ..utils.database import Connect_to_database
 from ..database.queries import Queries
 from ..database.models import BookVector
 from typing import TypedDict, Literal
+import json
 
 
 class InputText(TypedDict):
@@ -23,9 +24,8 @@ connection = Connect_to_database()
 # get all books vector
 query_handler = Queries(connection)
 books_embedding = query_handler.get_all(BookVector())
-print(f"{books_embedding = }")
 
-book_embedding_model = TextProcessor([])
+book_embedding_model = TextProcessor([book.content_vector for book in books_embedding])  # type: ignore
 
 
 @bp.route("/suggest", methods=["POST"])
@@ -45,18 +45,12 @@ def suggest():
 
         text = data["Text"]
 
-        books_id: List[int] = [1, 2, 3]
-        # books_id: List[int] = book_embedding_model.most_similar(
-        #     text
-        # )  # get the most similar books
+        # get the most similar books
+        books_index: List[int] = book_embedding_model.most_similar(text)
 
-        return jsonify(books_id)
-    except:
-        return "Internal server error", 500
+        #
+        books_ids = [books_embedding[id].id for id in books_index]
 
-
-class InputText(TypedDict):
-    Text: str
-
-
-Language = Literal["english", "french"]
+        return json.dumps({"Books": books_ids}), 200
+    except Exception as e:
+        return f"Internal server error: {e}", 500
