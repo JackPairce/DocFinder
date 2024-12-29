@@ -11,6 +11,13 @@ services:
       - ./database/data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -19,17 +26,27 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
+    env_file:
+      - ./backend/.env
     environment:
       - DATABASE_URL=db:5432
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
 
   frontend:
     build: ./frontend
     container_name: docfind-frontend
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-    depends_on:
-      - backend
+    # depends_on:
+    #   - backend
+    networks:
+      - app-network
+
+# create network
+networks:
+  app-network:
+    driver: bridge
