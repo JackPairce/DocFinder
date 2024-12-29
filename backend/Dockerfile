@@ -12,6 +12,6 @@ RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 RUN pip install --no-cache-dir sentence-transformers sqlalchemy spycopg2-binary pandas numpy flask
 
-# RUN make init
+RUN make init
 
 CMD ["make", "dev"]
