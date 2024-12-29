@@ -1,11 +1,12 @@
 import os
-from database.queries import Queries
-from database.models import Book, BookVector
-from utils.database import Connect_to_database
-from utils.file_operations import download_file, read_csv
-from utils.text_processing import process_text
-from utils.file_operations import get_book_by_id
 
+from .database.queries import Queries
+from .database.models import Book, BookVector
+from .utils.database import Connect_to_database
+from .utils.file_operations import download_file, read_csv
+from .utils.text_processing import process_text
+from .utils.file_operations import get_book_by_id
+from tqdm import tqdm
 
 if __name__ == "__main__":
     """
@@ -34,6 +35,7 @@ if __name__ == "__main__":
         - Make sure to handle any exceptions that may occur.
         - Use logging each step done (you can use the `setup_logger` function from the `logging_utils` module).
     """
+    tqdm.pandas()
     #! set up logger
 
     # connect to database
@@ -47,8 +49,11 @@ if __name__ == "__main__":
     CSV_FILE = "/tmp/pg_catalog.csv"
     # download the csv file
     download_file(LNK, CSV_FILE)
+
     # read the csv file
     data = read_csv(CSV_FILE)
+
+    # rename column Text# to id and delete column LoCC
     data.rename(columns={"Text#": "id"}, inplace=True)
     data.drop(columns=["LoCC"], inplace=True)
 
@@ -59,37 +64,77 @@ if __name__ == "__main__":
     data = data[data["Language"].isin(["en", "fr"])]
     data["Language"] = data["Language"].replace({"en": "english", "fr": "french"})
 
+    # process Authors and Bookshelves columns
+    # split the Authors and Bookshelves columns by ";" and remove date from the Authors column then split it by "," and join it by " ".
+    data["Authors"] = (
+        data["Authors"].str.replace(r"\d{4}-\d{4}", "").str.replace(",", "").str.strip()
+    )
+    data["Authors"] = data["Authors"].str.split(";")
+
+    # split the Bookshelves column by ";"
+    data["Bookshelves"] = data["Bookshelves"].str.split(";")
+
+    # split the Subjects column by ";"
+    data["Subjects"] = data["Subjects"].str.split(";")
+
+    # remove nan values of each row
+    data.dropna(inplace=True)
+
+    # user books limit
+    BOOKS_LIMIT = int(os.environ.get("BOOKS_LIMIT") or 1000)
+    data = data[:BOOKS_LIMIT]
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
-    data["subject_vector"] = data.apply(
-        lambda row: f"{row['issued']} {row['authors']} {row['title']} {row['subjects']} {row['bookshelves']}",
-        axis=1,
-    )
-    data["subject_vector"] = data["subject_vector"].apply(
-        lambda x: process_text(x).tolist()
-    )
-    print(data["subject_vector"])
+    output = []
+    for i in tqdm(
+        range(0, data.shape[0], BOOKS_LIMIT),
+        total=data.shape[0],
+        desc="Processing data",
+    ):
+        target = (
+            data.iloc[i : i + BOOKS_LIMIT]
+            .apply(
+                lambda row: f"{row['Issued']} {','.join(row['Authors'])} {row['Title']} {','.join(row['Subjects'])} {','.join(row['Bookshelves'])}",
+                axis=1,
+            )
+            .tolist()
+        )
+        output.extend(process_text(target))
+
+    data["subject_vector"] = output
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
-    data["Book_content_vector"] = data["id"].apply(get_book_by_id)
+    output = []
+    for i in tqdm(
+        range(0, data.shape[0], BOOKS_LIMIT),
+        total=data.shape[0],
+        desc="Processing book content",
+    ):
+        target = (
+            data["id"].iloc[i : i + BOOKS_LIMIT].progress_apply(get_book_by_id).tolist()
+        )
+        output.extend(process_text(target))
+
+    data["Book_content_vector"] = output
 
     # Save the data in the database respectively.
     queryHandler = Queries(db_connection)
-    for _, row in data.iterrows():
+    for _, row in tqdm(data.iterrows(), total=data.shape[0], desc="Inserting data"):
         book = Book(
             id=row["id"],
-            title=row["title"],
+            issued=row["Issued"],
+            title=row["Title"],
             language=row["Language"],
-            authors=row["authors"],
-            issued=row["issued"],
+            authors=row["Authors"],
+            subjects=row["Subjects"],
+            bookshelves=row["Bookshelves"],
+            cover_url=f"https://www.gutenberg.org/cache/epub/{row["id"]}/{row["id"]}-cover.png",
         )
         book_vector = BookVector(
             id=row["id"],
-            subjects_vector=row["subject_vector"],
+            subject_vector=row["subject_vector"],
             content_vector=row["Book_content_vector"],
         )
 
         queryHandler.insert(book)
         queryHandler.insert(book_vector)
-
-    ...

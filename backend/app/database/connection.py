@@ -1,6 +1,5 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-from psycopg2 import OperationalError
 
 
 class Connection:
@@ -28,7 +27,7 @@ class Connection:
                 autocommit=False, autoflush=False, bind=self.engine
             )
             print("Connected to database")
-        except OperationalError as e:
+        except Exception as e:
             print(f"Failing to connect to database: {e}")
             self.engine = None
 
