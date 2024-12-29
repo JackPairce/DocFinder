@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye
+FROM python:3.12-slim
 
 RUN apt-get update && apt-get install -y make
 
@@ -10,8 +10,8 @@ COPY . .
 
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-RUN pip install --no-cache-dir sentence-transformers sqlalchemy spycopg2-binary pandas numpy flask
+RUN pip install --no-cache-dir sentence-transformers sqlalchemy psycopg2-binary pandas numpy flask
 
-# RUN make init
+RUN make init
 
 CMD ["make", "dev"]

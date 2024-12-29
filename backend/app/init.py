@@ -6,7 +6,7 @@ from .utils.database import Connect_to_database
 from .utils.file_operations import download_file, read_csv
 from .utils.text_processing import process_text, process_content
 from .utils.file_operations import get_book_by_id
-from utils.logging_utils import setup_logger
+from .utils.logging_utils import setup_logger
 from tqdm import tqdm
 
 if __name__ == "__main__":
