@@ -88,20 +88,22 @@ if __name__ == "__main__":
 
     # user books limit
     BOOKS_LIMIT = int(os.environ.get("BOOKS_LIMIT") or 1000)
+    CHUNKS_SIZE = 10
     data = data[:BOOKS_LIMIT]
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the 'subject_vector' column")
     output = []
     for i in tqdm(
-        range(0, data.shape[0], BOOKS_LIMIT),
-        total=data.shape[0],
+        range(0, data.shape[0], CHUNKS_SIZE),
+        total=data.shape[0] // CHUNKS_SIZE,
         desc="Processing data",
     ):
         target = (
-            data.iloc[i : i + BOOKS_LIMIT]
+            data.iloc[i : i + CHUNKS_SIZE]
             .apply(
-                lambda row: f"{row['Issued']} {','.join(row['Authors'])} {row['Title']} {','.join(row['Subjects'])} {','.join(row['Bookshelves'])}",
+                # lambda row: f"{row['Issued']} {','.join(row['Authors'])} {row['Title']} {','.join(row['Subjects'])} {','.join(row['Bookshelves'])}",
+                lambda row: f"title:{row["Title"]};authors:{','.join(row["Authors"])};subjects:{','.join(row["Subjects"])};bookshelves:{','.join(row["Bookshelves"])};date:{row["Issued"]}",
                 axis=1,
             )
             .tolist()
@@ -113,13 +115,13 @@ if __name__ == "__main__":
     logger.info("Encoding the 'Book_content' column")
     output = []
     for i in tqdm(
-        range(0, data.shape[0], BOOKS_LIMIT),
-        total=data.shape[0],
+        range(0, data.shape[0], CHUNKS_SIZE),
+        total=data.shape[0] // CHUNKS_SIZE,
         desc="Processing book content",
     ):
         target = (
             data["id"]
-            .iloc[i : i + BOOKS_LIMIT]
+            .iloc[i : i + CHUNKS_SIZE]
             .apply(get_book_by_id)
             .apply(process_content)
             .tolist()
@@ -152,5 +154,3 @@ if __name__ == "__main__":
 
     # close the database connection
     db_connection.close()
-
-    ...
