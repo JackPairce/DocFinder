@@ -1,5 +1,3 @@
-from ..database.queries import Queries
-from ..database.models import Book
 from ..database.connection import Connection
 from sqlalchemy.orm import Session
 import os
@@ -8,7 +6,7 @@ import os
 def Connect_to_database() -> Session:
 
     # get environment variables
-    URL = os.environ.get("DATABASE_URL") or "localhost:5432"
+    URL = os.environ.get("DATABASE_URL")
     if URL is None:
         raise ValueError("DATABASE_URL is not set")
 
