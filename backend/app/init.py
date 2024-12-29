@@ -36,8 +36,7 @@ if __name__ == "__main__":
         - Make sure to handle any exceptions that may occur.
         - Use logging each step done (you can use the `setup_logger` function from the `logging_utils` module).
     """
-    tqdm.pandas()
-    #! set up logger
+    # setup logger
     logger = setup_logger("initiate_database")
 
     # connect to database
@@ -53,7 +52,6 @@ if __name__ == "__main__":
     CSV_FILE = "/tmp/pg_catalog.csv"
     # download the csv file
     download_file(LNK, CSV_FILE)
-
 
     # read the csv file
     logger.info("Reading the CSV file")
@@ -94,14 +92,6 @@ if __name__ == "__main__":
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the 'subject_vector' column")
-    data["subject_vector"] = data.apply(
-        lambda row: f"{row['issued']} {row['authors']} {row['title']} {row['subjects']} {row['bookshelves']}",
-        axis=1,
-    )
-    data["subject_vector"] = data["subject_vector"].apply(
-        lambda x: process_text(x).tolist()
-    )
-    print(data["subject_vector"])
     output = []
     for i in tqdm(
         range(0, data.shape[0], BOOKS_LIMIT),
@@ -117,18 +107,10 @@ if __name__ == "__main__":
             .tolist()
         )
         output.extend(process_text(target))
-
     data["subject_vector"] = output
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
     logger.info("Encoding the 'Book_content' column")
-    data["Book_content"] = data["id"].apply(
-        get_book_by_id
-    ).apply(
-        process_content
-    ).apply(
-        lambda x: process_text(x).tolist()
-    )
     output = []
     for i in tqdm(
         range(0, data.shape[0], BOOKS_LIMIT),
@@ -136,10 +118,13 @@ if __name__ == "__main__":
         desc="Processing book content",
     ):
         target = (
-            data["id"].iloc[i : i + BOOKS_LIMIT].progress_apply(get_book_by_id).tolist()
+            data["id"]
+            .iloc[i : i + BOOKS_LIMIT]
+            .apply(get_book_by_id)
+            .apply(process_content)
+            .tolist()
         )
         output.extend(process_text(target))
-
     data["Book_content_vector"] = output
 
     # Save the data in the database respectively.
@@ -164,8 +149,8 @@ if __name__ == "__main__":
 
         queryHandler.insert(book)
         queryHandler.insert(book_vector)
-    
-    # close the database connection 
+
+    # close the database connection
     db_connection.close()
 
     ...
