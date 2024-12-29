@@ -10,8 +10,8 @@ COPY . .
 
 RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
 
-RUN pip install --no-cache-dir sentence-transformers sqlalchemy psycopg2-binary pandas numpy flask
+RUN pip install --no-cache-dir sentence-transformers sqlalchemy psycopg2-binary pandas numpy flask faiss-cpu
 
 RUN make init
 
-CMD ["make", "dev"]
+CMD ["make", "run"]

@@ -29,8 +29,7 @@ class TextProcessor:
         metadata_indices = metadata_indices[0]
         doc_dist = doc_dist[0]
         metadata_dist = metadata_dist[0]
-        print(f"doc_dist: {doc_dist}")
-        print(f"metadata_dist: {metadata_dist}")
+
         doc_indices = doc_indices[doc_dist[doc_dist > 1].argsort()]
         metadata_indices = metadata_indices[metadata_dist[metadata_dist > 1].argsort()]
         # choose the best index
