@@ -33,14 +33,12 @@ class TextProcessor:
         doc_indices = doc_indices[doc_dist[doc_dist > 1].argsort()]
         metadata_indices = metadata_indices[metadata_dist[metadata_dist > 1].argsort()]
         # choose the best index
-        if len(doc_indices) == 0 or doc_dist.mean() > metadata_dist.mean():
+        if len(doc_indices) == 0 or doc_dist.mean() < metadata_dist.mean():
             return metadata_indices[
-                doc_dist[doc_dist > doc_dist.mean()].argsort()
-            ].tolist()
-        if len(metadata_indices) == 0 or doc_dist.mean() < metadata_dist.mean():
-            return doc_indices[
                 metadata_dist[metadata_dist > metadata_dist.mean()].argsort()
             ].tolist()
+        if len(metadata_indices) == 0 or doc_dist.mean() > metadata_dist.mean():
+            return doc_indices[doc_dist[doc_dist > doc_dist.mean()].argsort()].tolist()
         else:
             # combine the two indices
             return np.concatenate([doc_indices[:3], metadata_indices[:2]]).tolist()

@@ -17,10 +17,10 @@ class Queries:
             self.session.rollback()
             raise Exception(f"Failed to insert data: {e}")
 
-    def get_id(self, model: Base, id: int):
+    def get_id(self, model: TBase, id: int) -> TBase:
         try:
             data = self.session.query(model.__table__).filter_by(id=id).first()
-            return data
+            return data  # type: ignore
         except SQLAlchemyError as e:
             raise Exception(f"Failed to get data: {e}")
 
