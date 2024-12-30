@@ -41,8 +41,8 @@ services:
     container_name: docfind-frontend
     ports:
       - "3000:3000"
-    # depends_on:
-    #   - backend
+    depends_on:
+      - backend
     networks:
       - app-network
 
