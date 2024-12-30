@@ -4,7 +4,7 @@ import numpy as np
 from ..utils.text_processing import TextProcessor
 from ..utils.database import Connect_to_database
 from ..database.queries import Queries
-from ..database.models import BookVector
+from ..database.models import Book, BookVector
 from typing import TypedDict, Literal
 import json
 
@@ -61,7 +61,21 @@ def suggest():
         # get the books ids
         books_ids = [books_embedding[id].id for id in books_index]
 
-        return json.dumps({"Books": books_ids}), 200
+        Data = [query_handler.get_id(Book, id) for id in books_ids]  # type: ignore
+        Data = [
+            {
+                "id": book.id,
+                "title": book.title,
+                "issued": (book.issued).strftime("%Y-%m-%d"),
+                "authors": book.authors,
+                "subjects": book.subjects,
+                "cover_url": book.cover_url,
+            }
+            for book in Data
+            if book is not None
+        ]
+
+        return json.dumps(Data), 200
     except Exception as e:
         import traceback
 
