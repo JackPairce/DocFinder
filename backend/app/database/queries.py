@@ -2,6 +2,7 @@ from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from .base import Base, TBase
+import logging
 
 
 class Queries:
@@ -15,7 +16,7 @@ class Queries:
             return new_data
         except SQLAlchemyError as e:
             self.session.rollback()
-            raise Exception(f"Failed to insert data: {e}")
+            logging.warning(f"Failed to insert data: {e}")
 
     def get_id(self, model: TBase, id: int) -> TBase:
         try:
