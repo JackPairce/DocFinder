@@ -71,16 +71,7 @@ Before you can start the app, you need to have Docker installed on your system. 
 4. Run the Docker container:
 
     ```bash
-    docker compose up
-    ```
-
-    This code initializes and starts the application.
-    Note that it will take some time to preprocess the data and populate the database.
-
-    To monitor the application startup process, use the following command:
-
-    ```sh
-    docker logs -f docfind-backend
+    docker compose up -d
     ```
 
 5. Open your web browser and go to `http://localhost:3000` to access the app.
