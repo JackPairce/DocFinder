@@ -1,8 +1,5 @@
 import os
 
-from .database.queries import Queries
-from .database.models import Book, BookVector
-from .utils.database import Connect_to_database
 from .utils.file_operations import download_file, read_csv
 from .utils.text_processing import process_text, process_content
 from .utils.file_operations import get_book_by_id
@@ -37,11 +34,7 @@ if __name__ == "__main__":
         - Use logging each step done (you can use the `setup_logger` function from the `logging_utils` module).
     """
     # setup logger
-    logger = setup_logger("initiate_database")
-
-    # connect to database
-    logger.info("Connecting to the database")
-    db_connection = Connect_to_database()
+    logger = setup_logger("preprocess")
 
     # the link of the csv file
     logger.info("Downloading the CSV file")
@@ -92,7 +85,7 @@ if __name__ == "__main__":
     data = data[:BOOKS_LIMIT]
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
-    logger.info("Encoding the 'subject_vector' column")
+    logger.info("Encoding the  metadata of the books to vectors")
     output = []
     for i in tqdm(
         range(0, data.shape[0], CHUNKS_SIZE),
@@ -112,12 +105,12 @@ if __name__ == "__main__":
     data["subject_vector"] = output
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
-    logger.info("Encoding the 'Book_content' column")
+    logger.info("Encoding the Book content column to vectors")
     output = []
     for i in tqdm(
         range(0, data.shape[0], CHUNKS_SIZE),
         total=data.shape[0] // CHUNKS_SIZE,
-        desc="Processing book content",
+        desc="Download and Processing book content",
     ):
         target = (
             data["id"]
@@ -127,30 +120,8 @@ if __name__ == "__main__":
             .tolist()
         )
         output.extend(process_text(target))
-    data["Book_content_vector"] = output
+    data["content_vector"] = output
 
-    # Save the data in the database respectively.
-    logger.info("Inserting the data into the database")
-    queryHandler = Queries(db_connection)
-    for _, row in tqdm(data.iterrows(), total=data.shape[0], desc="Inserting data"):
-        book = Book(
-            id=row["id"],
-            issued=row["Issued"],
-            title=row["Title"],
-            language=row["Language"],
-            authors=row["Authors"],
-            subjects=row["Subjects"],
-            bookshelves=row["Bookshelves"],
-            cover_url=f"https://www.gutenberg.org/cache/epub/{row["id"]}/{row["id"]}-cover.png",
-        )
-        book_vector = BookVector(
-            id=row["id"],
-            subject_vector=row["subject_vector"],
-            content_vector=row["Book_content_vector"],
-        )
-
-        queryHandler.insert(book)
-        queryHandler.insert(book_vector)
-
-    # close the database connection
-    db_connection.close()
+    # save the data in file
+    logger.info("Saving the data")
+    data.to_json("/tmp/preprocessed_data.json", orient="records", lines=True)
