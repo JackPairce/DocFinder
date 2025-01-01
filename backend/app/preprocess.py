@@ -131,4 +131,5 @@ if __name__ == "__main__":
 
     # save the data in file
     logger.info("Saving the data")
+    os.makedirs("/data", exist_ok=True)
     data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
