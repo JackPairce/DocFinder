@@ -80,7 +80,15 @@ if __name__ == "__main__":
     data.dropna(inplace=True)
 
     # user books limit
-    BOOKS_LIMIT = int(os.environ.get("BOOKS_LIMIT") or 1000)
+    ENV_BOOKS_LIMIT = os.environ.get("BOOKS_LIMIT")
+    if ENV_BOOKS_LIMIT is None:
+        BOOKS_LIMIT = 1000
+    elif ENV_BOOKS_LIMIT.isdigit():
+        BOOKS_LIMIT = int(ENV_BOOKS_LIMIT)
+    elif ENV_BOOKS_LIMIT.lower() == "all":
+        BOOKS_LIMIT = data.shape[0]
+    else:
+        BOOKS_LIMIT = 1000
     CHUNKS_SIZE = 10
     data = data[:BOOKS_LIMIT]
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
@@ -95,7 +103,6 @@ if __name__ == "__main__":
         target = (
             data.iloc[i : i + CHUNKS_SIZE]
             .apply(
-                # lambda row: f"{row['Issued']} {','.join(row['Authors'])} {row['Title']} {','.join(row['Subjects'])} {','.join(row['Bookshelves'])}",
                 lambda row: f"title:{row["Title"]};authors:{','.join(row["Authors"])};subjects:{','.join(row["Subjects"])};bookshelves:{','.join(row["Bookshelves"])};date:{row["Issued"]}",
                 axis=1,
             )
@@ -124,4 +131,4 @@ if __name__ == "__main__":
 
     # save the data in file
     logger.info("Saving the data")
-    data.to_json("/tmp/preprocessed_data.json", orient="records", lines=True)
+    data.to_json("/data/preprocessed_data.json", orient="records", lines=True)

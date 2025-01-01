@@ -19,7 +19,7 @@ services:
           property: port
     disk:
       name: processed-file
-      mountPath: /tmp
+      mountPath: /data
     plan: free
 
   # Frontend service

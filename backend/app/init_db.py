@@ -17,8 +17,8 @@ if __name__ == "__main__":
     db_connection = Connect_to_database()
 
     # get data from the csv file
-    logger.info("Reading the CSV file")
-    data = pd.read_json("/tmp/preprocessed_data.json", orient="records", lines=True)
+    logger.info("Reading the saved file")
+    data = pd.read_json("/data/preprocessed_data.json", orient="records", lines=True)
 
     # Save the data in the database respectively.
     logger.info("Inserting the data into the database")
