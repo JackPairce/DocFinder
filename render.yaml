@@ -10,7 +10,7 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: DATABASE_URL
-        value: ${DOCFIND_DB_HOST}:${DOCFIND_DB_PORT}
+        value: $DOCFIND_DB_HOST:$DOCFIND_DB_PORT
       - key: DOCFIND_DB_HOST
         fromDatabase:
           name: docfind-db
