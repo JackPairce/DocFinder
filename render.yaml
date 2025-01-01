@@ -1,42 +1,48 @@
 # render.yaml
-databases:
-  - name: postgres-db
-    database_type: postgres
-    plan: standard
-    version: 15
-    disk:
-      size: 1GB
-    env_vars:
-      - key: POSTGRES_USER
-        from_env: POSTGRES_USER
-      - key: POSTGRES_PASSWORD
-        from_env: POSTGRES_PASSWORD
-      - key: POSTGRES_DB
-        from_env: POSTGRES_DB
 
 services:
-  - name: docfind-backend
-    type: web
-    env: docker
+  # Backend service
+  - type: web
+    runtime: docker
+    name: docfind-backend
+    repo: https://github.com/JackPairce/DocFinder.git
+    rootDir: backend
     dockerfilePath: ./backend/Dockerfile
-    buildCommand: docker build -t backend ./backend
-    startCommand: docker run -p 5000:5000 backend
-    env_vars:
+    envVars:
       - key: DATABASE_URL
-        value: postgres-db:5432
-    healthCheckPath: /health
-    autoDeploy: true
+        value: ${DOCFIND_DB_HOST}:${DOCFIND_DB_PORT}
+      - key: DOCFIND_DB_HOST
+        fromDatabase:
+          name: docfind-db
+          property: host
+      - key: DOCFIND_DB_PORT
+        fromDatabase:
+          name: docfind-db
+          property: port
     plan: free
-    depends_on:
-      - postgres-db
 
-  - name: docfind-frontend
-    type: web
-    env: docker
+  # Frontend service
+  - type: web
+    runtime: docker
+    name: docfind-frontend
+    repo: https://github.com/JackPairce/DocFinder.git
+    rootDir: frontend
     dockerfilePath: ./frontend/Dockerfile
-    buildCommand: docker build -t frontend ./frontend
-    startCommand: docker run -p 3000:3000 frontend
+    envVars:
+      - key: DOCFIND_BACKEND_HOST
+        fromService:
+          name: docfind-backend
+          type: web
+          property: host
+      - key: DOCFIND_BACKEND_PORT
+        fromService:
+          name: docfind-backend
+          type: web
+          property: port
     autoDeploy: true
+
+databases:
+  # PostgreSQL database
+  - name: docfind-db
     plan: free
-    depends_on:
-      - docfind-backend
+    ipAllowList: [] # Internal connections only
