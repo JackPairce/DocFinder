@@ -17,9 +17,6 @@ services:
         fromDatabase:
           name: docfind-db
           property: port
-    disk:
-      name: processed-file
-      mountPath: /data
     plan: free
 
   # Frontend service
