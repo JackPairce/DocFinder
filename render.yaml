@@ -1,0 +1,42 @@
+# render.yaml
+databases:
+  - name: postgres-db
+    database_type: postgres
+    plan: standard
+    version: 15
+    disk:
+      size: 1GB
+    env_vars:
+      - key: POSTGRES_USER
+        from_env: POSTGRES_USER
+      - key: POSTGRES_PASSWORD
+        from_env: POSTGRES_PASSWORD
+      - key: POSTGRES_DB
+        from_env: POSTGRES_DB
+
+services:
+  - name: docfind-backend
+    type: web
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    buildCommand: docker build -t backend ./backend
+    startCommand: docker run -p 5000:5000 backend
+    env_vars:
+      - key: DATABASE_URL
+        value: postgres-db:5432
+    healthCheckPath: /health
+    autoDeploy: true
+    plan: free
+    depends_on:
+      - postgres-db
+
+  - name: docfind-frontend
+    type: web
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    buildCommand: docker build -t frontend ./frontend
+    startCommand: docker run -p 3000:3000 frontend
+    autoDeploy: true
+    plan: free
+    depends_on:
+      - docfind-backend
