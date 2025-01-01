@@ -17,6 +17,18 @@ services:
         fromDatabase:
           name: docfind-db
           property: port
+      - key: POSTGRES_USER
+        fromDatabase:
+          name: docfind-db
+          property: user
+      - key: POSTGRES_PASSWORD
+        fromDatabase:
+          name: docfind-db
+          property: password
+      - key: POSTGRES_DB
+        fromDatabase:
+          name: docfind-db
+          property: database
     plan: free
 
   # Frontend service
@@ -44,4 +56,5 @@ databases:
   # PostgreSQL database
   - name: docfind-db
     plan: free
+    databaseName: library
     ipAllowList: [] # Internal connections only
