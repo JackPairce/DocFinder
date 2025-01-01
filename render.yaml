@@ -16,9 +16,7 @@ services:
           name: docfind-db
           property: host
       - key: DOCFIND_DB_PORT
-        fromDatabase:
-          name: docfind-db
-          property: port
+        value: "5432"
     plan: free
 
   # Frontend service
