@@ -9,14 +9,14 @@ services:
     rootDir: backend
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: DATABASE_URL
-        value: $DOCFIND_DB_HOST:$DOCFIND_DB_PORT
       - key: DOCFIND_DB_HOST
         fromDatabase:
           name: docfind-db
           property: host
       - key: DOCFIND_DB_PORT
-        value: "5432"
+        fromDatabase:
+          name: docfind-db
+          property: port
     plan: free
 
   # Frontend service

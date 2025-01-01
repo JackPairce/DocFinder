@@ -6,14 +6,13 @@ import os
 def Connect_to_database() -> Session:
 
     # get environment variables
-    URL = os.environ.get("DATABASE_URL")
-    if URL is None:
-        raise ValueError("DATABASE_URL is not set")
+    HOST, PORT = os.environ.get("DOCFIND_DB_HOST"), os.environ.get("DOCFIND_DB_PORT")
+    if HOST is None or PORT is None:
+        raise ValueError("Database URL is not set")
 
     DBNAME = os.environ.get("POSTGRES_DB")
     USER = os.environ.get("POSTGRES_USER")
     PASSWORD = os.environ.get("POSTGRES_PASSWORD")
-    HOST, PORT = URL.split(":")
 
     if DBNAME is None or USER is None or PASSWORD is None:
         raise ValueError("Invalid DATABASE_URL")
