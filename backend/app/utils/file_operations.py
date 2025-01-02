@@ -23,15 +23,15 @@ def download_file(url: str, path: str) -> None:
         with open(path, "wb") as file:
 
             total_length = int(response.headers.get("content-length"))  # type: ignore
-            for data in tqdm(
-                response.iter_content(chunk_size=CHUNK_SIZE),
-                desc="Downloading",
+            with tqdm(
                 total=total_length,
                 unit="B",
                 unit_scale=True,
-                unit_divisor=CHUNK_SIZE,
-            ):
-                file.write(data)
+                desc="Downloading",
+            ) as pbar:
+                for data in response.iter_content(chunk_size=CHUNK_SIZE):
+                    file.write(data)
+                    pbar.update(len(data))
     except requests.exceptions.RequestException as e:
         print(f"Failed to download file: {e}")
 
