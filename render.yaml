@@ -39,16 +39,11 @@ services:
     rootDir: frontend
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: DOCFIND_BACKEND_HOST
+      - key: BACKEND_URL
         fromService:
           name: docfind-backend
           type: web
-          property: host
-      - key: DOCFIND_BACKEND_PORT
-        fromService:
-          name: docfind-backend
-          type: web
-          property: port
+          envVarKey: RENDER_EXTERNAL_URL
     autoDeploy: true
     plan: free
 

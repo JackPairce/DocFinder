@@ -21,6 +21,8 @@ COPY --from=base /usr/src/app/.next ./.next
 COPY --from=base /usr/src/app/node_modules ./node_modules
 COPY --from=base /usr/src/app/next.config.mjs ./next.config.mjs
 
+ARG BACKEND_URL
+
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]
