@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import os
 
 
-def Connect_to_database() -> Session:
+def Connect_to_database() -> Connection:
 
     # get environment variables
     HOST, PORT = os.environ.get("DOCFIND_DB_HOST"), os.environ.get("DOCFIND_DB_PORT")
@@ -27,4 +27,4 @@ def Connect_to_database() -> Session:
     )
     db.connect()
 
-    return db.get_session()
+    return db

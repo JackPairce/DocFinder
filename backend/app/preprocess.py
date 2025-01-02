@@ -166,4 +166,5 @@ if __name__ == "__main__":
     assert len(os.listdir("/data/content_vectors")) == len(
         os.listdir("/data/subject_vectors")
     ), "The number of files in the content and subject vectors should be the same"
+
     logger.info("Finished encoding the Book content column to vectors")

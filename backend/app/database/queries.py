@@ -1,4 +1,5 @@
 from typing import List
+from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from .base import Base, TBase
@@ -8,6 +9,12 @@ import logging
 class Queries:
     def __init__(self, session: Session):
         self.session = session
+
+    def create_table(self, engine: Engine):
+        try:
+            Base.metadata.create_all(engine)
+        except SQLAlchemyError as e:
+            logging.warning(f"Failed to create table: {e}")
 
     def insert(self, new_data: Base):
         try:

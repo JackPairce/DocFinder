@@ -15,7 +15,12 @@ if __name__ == "__main__":
 
     # connect to database
     logger.info("Connecting to the database")
-    db_connection = Connect_to_database()
+    db = Connect_to_database()
+
+    # create tables
+    logger.info("Creating tables")
+    queryHandler = Queries(db.get_session())
+    queryHandler.create_table(db.get_engine())
 
     # get data from the csv file
     logger.info("Reading metadata from the CSV file")
@@ -23,7 +28,6 @@ if __name__ == "__main__":
 
     # Save the data in the database respectively.
     logger.info("Inserting the data into the database")
-    queryHandler = Queries(db_connection)
     for _, row in tqdm(data.iterrows(), total=data.shape[0], desc="Inserting data"):
         book = Book(
             id=row["id"],

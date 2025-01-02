@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
 
@@ -40,3 +40,8 @@ class Connection:
         if self.SessionLocal is None:
             raise ConnectionError("Database connection is not established")
         return self.SessionLocal()
+
+    def get_engine(self) -> Engine:
+        if self.engine is None:
+            raise ConnectionError("Database connection is not established")
+        return self.engine
