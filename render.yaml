@@ -39,7 +39,7 @@ services:
     rootDir: frontend
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: BACKEND_URL
+      - key: NEXT_PUBLIC_BACKEND_URLBACKEND_URL
         fromService:
           name: docfind-backend
           type: web
