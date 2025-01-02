@@ -67,4 +67,4 @@ if __name__ == "__main__":
     os.system("rm /data/preprocessed_data.json")
 
     # close the database connection
-    db_connection.close()
+    db.close()
