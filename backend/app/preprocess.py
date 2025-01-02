@@ -123,15 +123,16 @@ if __name__ == "__main__":
         total=data.shape[0], desc="Processing and saving subject vectors"
     ) as pbar:
         for i in range(0, data.shape[0], CHUNKS_SIZE):
-            target = (
+            target = data["id"].iloc[i : i + CHUNKS_SIZE].to_frame()
+            target["subject_vector"] = (
                 data.iloc[i : i + CHUNKS_SIZE]
                 .apply(
                     lambda row: f"title:{row["Title"]};authors:{','.join(row["Authors"])};subjects:{','.join(row["Subjects"])};bookshelves:{','.join(row["Bookshelves"])};date:{row["Issued"]}",
                     axis=1,
                 )
-                .tolist()
+                .apply(process_text)
             )
-            data.iloc[i : i + CHUNKS_SIZE].to_json(
+            target.to_json(
                 f"/data/subject_vectors/{i}.json", orient="records", lines=True
             )
             pbar.update(CHUNKS_SIZE)
