@@ -139,10 +139,15 @@ if __name__ == "__main__":
         total=data_lenght // CHUNKS_SIZE,
         desc="Download, Processing and saving book content vectors",
     ):
-        target = books_ids.iloc[i : i + CHUNKS_SIZE].apply(get_book_by_id)
-        target["to_delete"] = target.apply(lambda x: x != "")
+        target = books_ids
+        target["content_vector"] = books_ids.iloc[i : i + CHUNKS_SIZE].apply(
+            get_book_by_id
+        )
+        target["to_delete"] = target["content_vector"].apply(lambda x: x != "")
         target = target[~target["to_delete"]].drop(columns="to_delete")
-        target["content_vector"] = target.apply(process_content).apply(process_text)
+        target["content_vector"] = (
+            target["content_vector"].apply(process_content).apply(process_text)
+        )
         target.to_json(f"/data/content_vectors/{i}.json", orient="records", lines=True)
 
     assert len(os.listdir("/data/content_vectors")) == len(

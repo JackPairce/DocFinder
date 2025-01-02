@@ -27,7 +27,7 @@ def download_file(url: str, path: str) -> None:
                 response.iter_content(chunk_size=CHUNK_SIZE),
                 desc="Downloading",
                 total=total_length,
-                unit="MB",
+                unit="B",
                 unit_scale=True,
             ):
                 file.write(data)
