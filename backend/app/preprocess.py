@@ -104,7 +104,10 @@ if __name__ == "__main__":
     os.makedirs("/data/subject_vectors", exist_ok=True)
     os.makedirs("/data/content_vectors", exist_ok=True)
 
-    CHUNKS_SIZE = 10
+    CHUNKS_SIZE = os.environ.get("CHUNKS_SIZE")
+    if CHUNKS_SIZE is None:
+        CHUNKS_SIZE = 10
+    CHUNKS_SIZE = int(CHUNKS_SIZE)
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the  metadata of the books to vectors")
