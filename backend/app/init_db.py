@@ -42,7 +42,12 @@ if __name__ == "__main__":
     # read directory "/data/subject_vectors" and "/data/content_vectors" and insert the data into the database
     files = os.listdir("/data/subject_vectors")
     for file in tqdm(files, desc="Inserting data"):
-        data = read_csv(f"/data/subject_vectors/{file}")
+        data = pd.read_json(
+            f"/data/subject_vectors/{file}", orient="records", lines=True
+        )
+        data["content_vector"] = pd.read_json(
+            f"/data/content_vectors/{file}", orient="records", lines=True
+        )["content_vector"]
         for _, row in data.iterrows():
             book_vector = BookVector(
                 id=row["id"],
