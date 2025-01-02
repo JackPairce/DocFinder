@@ -126,6 +126,7 @@ if __name__ == "__main__":
             data.iloc[i : i + CHUNKS_SIZE].to_json(
                 f"/data/subject_vectors/{i}.json", orient="records", lines=True
             )
+            pbar.update(CHUNKS_SIZE)
 
     # save the data in file
     logger.info("Saving metadata")
