@@ -98,15 +98,20 @@ if __name__ == "__main__":
     books_limit = Get_BOOKS_LIMIT()
     if books_limit is not None:
         data = data.head(books_limit)
+
+    # prepare the directories
+    os.makedirs("/data", exist_ok=True)
+    os.makedirs("/data/subject_vectors", exist_ok=True)
+    os.makedirs("/data/content_vectors", exist_ok=True)
+
     CHUNKS_SIZE = 10
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the  metadata of the books to vectors")
-    output = []
     for i in tqdm(
         range(0, data.shape[0], CHUNKS_SIZE),
         total=data.shape[0] // CHUNKS_SIZE,
-        desc="Processing data",
+        desc="Processing and saving subject vectors",
     ):
         target = (
             data.iloc[i : i + CHUNKS_SIZE]
@@ -116,31 +121,12 @@ if __name__ == "__main__":
             )
             .tolist()
         )
-        output.extend(process_text(target))
-    data["subject_vector"] = output
-
-    # save the data in file
-    logger.info("Saving subject vectors")
-    os.makedirs("/data", exist_ok=True)
-    os.makedirs("/data/subject_vectors", exist_ok=True)
-    for i in tqdm(
-        range(0, data.shape[0], CHUNKS_SIZE),
-        total=data.shape[0] // CHUNKS_SIZE,
-        desc="Saving subject vectors",
-    ):
         data.iloc[i : i + CHUNKS_SIZE].to_json(
             f"/data/subject_vectors/{i}.json", orient="records", lines=True
         )
 
-    # drop the subject_vector column
-    data.drop(columns=["subject_vector"], inplace=True)
-
     # save the data in file
     logger.info("Saving metadata")
-    os.makedirs("/data", exist_ok=True)
-    data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
-
-    # save data to save memory
     books_ids = data["id"]
     data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
     data_lenght = len(data)
@@ -154,11 +140,10 @@ if __name__ == "__main__":
         total=data_lenght // CHUNKS_SIZE,
         desc="Download, Processing and saving book content vectors",
     ):
-        target = (
-            books_ids.iloc[i : i + CHUNKS_SIZE]
-            .apply(get_book_by_id)
-            .apply(process_content)
-        )
+        target = books_ids.iloc[i : i + CHUNKS_SIZE].apply(get_book_by_id)
+        target["to_delete"] = target.apply(lambda x: x != "")
+        target = target[~target["to_delete"]].drop(columns="to_delete")
+        target["content_vector"] = target.apply(process_content).apply(process_text)
         target.to_json(f"/data/content_vectors/{i}.json", orient="records", lines=True)
 
     assert len(os.listdir("/data/content_vectors")) == len(

@@ -22,12 +22,12 @@ def download_file(url: str, path: str) -> None:
 
         with open(path, "wb") as file:
 
-            total_length = int(response.headers.get("content-length")) / CHUNK_SIZE  # type: ignore
+            total_length = int(response.headers.get("content-length"))  # type: ignore
             for data in tqdm(
                 response.iter_content(chunk_size=CHUNK_SIZE),
                 desc="Downloading",
                 total=total_length,
-                unit="B",
+                unit="MB",
                 unit_scale=True,
             ):
                 file.write(data)
@@ -80,5 +80,6 @@ def get_book_by_id(id: int) -> str:
     """
     url = f"https://www.gutenberg.org/cache/epub/{id}/pg{id}.txt"
     response = requests.get(url)
-    response.raise_for_status()
+    if response.status_code != 200:
+        return ""
     return response.text
