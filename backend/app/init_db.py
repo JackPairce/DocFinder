@@ -34,13 +34,20 @@ if __name__ == "__main__":
             bookshelves=row["Bookshelves"],
             cover_url=f"https://www.gutenberg.org/cache/epub/{row["id"]}/{row["id"]}-cover.png",
         )
+        queryHandler.insert(book)
+
+    data = None
+    logger.info("Reading the saved file")
+    data = pd.read_json("/data/content_vectors.json", orient="records", lines=True)
+    data["subject_vector"] = pd.read_json(
+        "/data/subject_vectors.json", orient="records", lines=True
+    )["subject_vector"]
+    for _, row in tqdm(data.iterrows(), total=data.shape[0], desc="Inserting data"):
         book_vector = BookVector(
             id=row["id"],
             subject_vector=row["subject_vector"],
             content_vector=row["content_vector"],
         )
-
-        queryHandler.insert(book)
         queryHandler.insert(book_vector)
 
     # close the database connection

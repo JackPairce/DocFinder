@@ -1,5 +1,7 @@
 import os
 
+import pandas as pd
+
 from .utils.file_operations import download_file, read_csv
 from .utils.text_processing import process_text, process_content
 from .utils.file_operations import get_book_by_id
@@ -117,25 +119,42 @@ if __name__ == "__main__":
         output.extend(process_text(target))
     data["subject_vector"] = output
 
+    # save the data in file
+    logger.info("Saving subject vectors")
+    os.makedirs("/data", exist_ok=True)
+    data.to_json("/data/subject_vectors.json", orient="records", lines=True)
+    # drop the subject_vector column
+    data.drop(columns=["subject_vector"], inplace=True)
+
+    # save the data in file
+    logger.info("Saving metadata")
+    os.makedirs("/data", exist_ok=True)
+    data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
+
+    # save data to save memory
+    books_ids = data["id"]
+    data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
+    data_lenght = len(data)
+    data = None
+
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
     logger.info("Encoding the Book content column to vectors")
     output = []
     for i in tqdm(
-        range(0, data.shape[0], CHUNKS_SIZE),
-        total=data.shape[0] // CHUNKS_SIZE,
+        range(0, data_lenght, CHUNKS_SIZE),
+        total=data_lenght // CHUNKS_SIZE,
         desc="Download and Processing book content",
     ):
         target = (
-            data["id"]
-            .iloc[i : i + CHUNKS_SIZE]
+            books_ids.iloc[i : i + CHUNKS_SIZE]
             .apply(get_book_by_id)
             .apply(process_content)
             .tolist()
         )
         output.extend(process_text(target))
-    data["content_vector"] = output
 
     # save the data in file
-    logger.info("Saving the data")
+    logger.info("Saving book content vectors")
+    data = pd.DataFrame({"id": books_ids, "content_vector": output})
     os.makedirs("/data", exist_ok=True)
-    data.to_json("/data/preprocessed_data.json", orient="records", lines=True)
+    data.to_json("/data/content_vectors.json", orient="records", lines=True)
