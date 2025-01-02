@@ -122,7 +122,16 @@ if __name__ == "__main__":
     # save the data in file
     logger.info("Saving subject vectors")
     os.makedirs("/data", exist_ok=True)
-    data.to_json("/data/subject_vectors.json", orient="records", lines=True)
+    os.makedirs("/data/subject_vectors", exist_ok=True)
+    for i in tqdm(
+        range(0, data.shape[0], CHUNKS_SIZE),
+        total=data.shape[0] // CHUNKS_SIZE,
+        desc="Saving subject vectors",
+    ):
+        data.iloc[i : i + CHUNKS_SIZE].to_json(
+            f"/data/subject_vectors/{i}.json", orient="records", lines=True
+        )
+
     # drop the subject_vector column
     data.drop(columns=["subject_vector"], inplace=True)
 
@@ -139,22 +148,20 @@ if __name__ == "__main__":
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
     logger.info("Encoding the Book content column to vectors")
-    output = []
+    os.mkdir("/data/content_vectors")
     for i in tqdm(
         range(0, data_lenght, CHUNKS_SIZE),
         total=data_lenght // CHUNKS_SIZE,
-        desc="Download and Processing book content",
+        desc="Download, Processing and saving book content vectors",
     ):
         target = (
             books_ids.iloc[i : i + CHUNKS_SIZE]
             .apply(get_book_by_id)
             .apply(process_content)
-            .tolist()
         )
-        output.extend(process_text(target))
+        target.to_json(f"/data/content_vectors/{i}.json", orient="records", lines=True)
 
-    # save the data in file
-    logger.info("Saving book content vectors")
-    data = pd.DataFrame({"id": books_ids, "content_vector": output})
-    os.makedirs("/data", exist_ok=True)
-    data.to_json("/data/content_vectors.json", orient="records", lines=True)
+    assert len(os.listdir("/data/content_vectors")) == len(
+        os.listdir("/data/subject_vectors")
+    ), "The number of files in the content and subject vectors should be the same"
+    logger.info("Finished encoding the Book content column to vectors")
