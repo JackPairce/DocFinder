@@ -108,22 +108,21 @@ if __name__ == "__main__":
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the  metadata of the books to vectors")
-    for i in tqdm(
-        range(0, data.shape[0], CHUNKS_SIZE),
-        total=data.shape[0] // CHUNKS_SIZE,
-        desc="Processing and saving subject vectors",
-    ):
-        target = (
-            data.iloc[i : i + CHUNKS_SIZE]
-            .apply(
-                lambda row: f"title:{row["Title"]};authors:{','.join(row["Authors"])};subjects:{','.join(row["Subjects"])};bookshelves:{','.join(row["Bookshelves"])};date:{row["Issued"]}",
-                axis=1,
+    with tqdm(
+        total=data.shape[0], desc="Processing and saving subject vectors"
+    ) as pbar:
+        for i in range(0, data.shape[0], CHUNKS_SIZE):
+            target = (
+                data.iloc[i : i + CHUNKS_SIZE]
+                .apply(
+                    lambda row: f"title:{row["Title"]};authors:{','.join(row["Authors"])};subjects:{','.join(row["Subjects"])};bookshelves:{','.join(row["Bookshelves"])};date:{row["Issued"]}",
+                    axis=1,
+                )
+                .tolist()
             )
-            .tolist()
-        )
-        data.iloc[i : i + CHUNKS_SIZE].to_json(
-            f"/data/subject_vectors/{i}.json", orient="records", lines=True
-        )
+            data.iloc[i : i + CHUNKS_SIZE].to_json(
+                f"/data/subject_vectors/{i}.json", orient="records", lines=True
+            )
 
     # save the data in file
     logger.info("Saving metadata")
@@ -134,21 +133,23 @@ if __name__ == "__main__":
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
     logger.info("Encoding the Book content column to vectors")
-    for i in tqdm(
-        range(0, data_lenght, CHUNKS_SIZE),
-        total=data_lenght // CHUNKS_SIZE,
-        desc="Download, Processing and saving book content vectors",
-    ):
-        target = books_ids[i : i + CHUNKS_SIZE].to_frame()
-        target["content_vector"] = books_ids.iloc[i : i + CHUNKS_SIZE].apply(
-            get_book_by_id
-        )
-        to_delete = target["content_vector"].apply(lambda x: x != "").to_numpy()
-        target = target[to_delete]
-        target["content_vector"] = (
-            target["content_vector"].apply(process_content).apply(process_text)
-        )
-        target.to_json(f"/data/content_vectors/{i}.json", orient="records", lines=True)
+    with tqdm(
+        total=data_lenght, desc="Downloading and processing book content"
+    ) as pbar:
+        for i in range(0, data_lenght, CHUNKS_SIZE):
+            target = books_ids[i : i + CHUNKS_SIZE].to_frame()
+            target["content_vector"] = books_ids.iloc[i : i + CHUNKS_SIZE].apply(
+                get_book_by_id
+            )
+            to_delete = target["content_vector"].apply(lambda x: x != "").to_numpy()
+            target = target[to_delete]
+            target["content_vector"] = (
+                target["content_vector"].apply(process_content).apply(process_text)
+            )
+            target.to_json(
+                f"/data/content_vectors/{i}.json", orient="records", lines=True
+            )
+            pbar.update(CHUNKS_SIZE)
 
     assert len(os.listdir("/data/content_vectors")) == len(
         os.listdir("/data/subject_vectors")
