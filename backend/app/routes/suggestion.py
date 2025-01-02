@@ -20,10 +20,10 @@ Language = Literal["english", "french"]
 bp = Blueprint("suggestion", __name__)
 
 # connect to database
-connection = Connect_to_database()
+db = Connect_to_database()
 
 # get all books vector
-query_handler = Queries(connection)
+query_handler = Queries(db.get_session())
 books_embedding = query_handler.get_all(BookVector())
 
 subject_vector = np.array([book.subject_vector for book in books_embedding]).astype(
