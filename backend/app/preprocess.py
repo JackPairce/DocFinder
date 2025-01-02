@@ -1,23 +1,31 @@
 import os
 
-import pandas as pd
 
 from .utils.file_operations import download_file, read_csv
 from .utils.text_processing import process_text, process_content
 from .utils.file_operations import get_book_by_id
 from .utils.logging_utils import setup_logger
 from tqdm import tqdm
+import logging
 
 
-def Get_BOOKS_LIMIT():
+def Get_BOOKS_LIMIT(logger: logging.Logger):
     DEFAULT_BOOKS_LIMIT = 1000
     ENV_BOOKS_LIMIT = os.environ.get("BOOKS_LIMIT")
     if ENV_BOOKS_LIMIT is None:
+        logger.warning(
+            f"BOOKS_LIMIT is not set, using the default value of {DEFAULT_BOOKS_LIMIT}"
+        )
         return DEFAULT_BOOKS_LIMIT
     if ENV_BOOKS_LIMIT.lower() == "all":
+        logger.warning("BOOKS_LIMIT is set to 'all', processing all books")
         return None
     if not ENV_BOOKS_LIMIT.isdigit():
+        logger.warning(
+            f"BOOKS_LIMIT is set to '{ENV_BOOKS_LIMIT}', using the default value of {DEFAULT_BOOKS_LIMIT}"
+        )
         return DEFAULT_BOOKS_LIMIT
+    logger.info(f"BOOKS_LIMIT is set to {ENV_BOOKS_LIMIT}")
     return int(ENV_BOOKS_LIMIT)
 
 
@@ -95,7 +103,7 @@ if __name__ == "__main__":
     data.dropna(inplace=True)
 
     # user books limit
-    books_limit = Get_BOOKS_LIMIT()
+    books_limit = Get_BOOKS_LIMIT(logger)
     if books_limit is not None:
         data = data.head(books_limit)
 
