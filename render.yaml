@@ -29,6 +29,8 @@ services:
         fromDatabase:
           name: docfind-db
           property: database
+      - key: BOOKS_LIMIT
+        value: "all"
     plan: free
 
   # Frontend service

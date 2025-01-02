@@ -1,5 +1,3 @@
-include .env
-export
 
 init:
 	@python -m app.init_db

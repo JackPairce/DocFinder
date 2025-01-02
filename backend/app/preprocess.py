@@ -6,6 +6,19 @@ from .utils.file_operations import get_book_by_id
 from .utils.logging_utils import setup_logger
 from tqdm import tqdm
 
+
+def Get_BOOKS_LIMIT():
+    DEFAULT_BOOKS_LIMIT = 1000
+    ENV_BOOKS_LIMIT = os.environ.get("BOOKS_LIMIT")
+    if ENV_BOOKS_LIMIT is None:
+        return DEFAULT_BOOKS_LIMIT
+    if ENV_BOOKS_LIMIT.lower() == "all":
+        return None
+    if not ENV_BOOKS_LIMIT.isdigit():
+        return DEFAULT_BOOKS_LIMIT
+    return int(ENV_BOOKS_LIMIT)
+
+
 if __name__ == "__main__":
     """
     Main entry point for initializing the database.
@@ -80,17 +93,10 @@ if __name__ == "__main__":
     data.dropna(inplace=True)
 
     # user books limit
-    ENV_BOOKS_LIMIT = os.environ.get("BOOKS_LIMIT")
-    if ENV_BOOKS_LIMIT is None:
-        BOOKS_LIMIT = 1000
-    elif ENV_BOOKS_LIMIT.isdigit():
-        BOOKS_LIMIT = int(ENV_BOOKS_LIMIT)
-    elif ENV_BOOKS_LIMIT.lower() == "all":
-        BOOKS_LIMIT = data.shape[0]
-    else:
-        BOOKS_LIMIT = 1000
+    books_limit = Get_BOOKS_LIMIT()
+    if books_limit is not None:
+        data = data.head(books_limit)
     CHUNKS_SIZE = 10
-    data = data[:BOOKS_LIMIT]
     # use Sentence Transformers (all-MiniLM-L6-v2) to encode the "subject_vector" column and save it on same column.
     # issued, authors, title, subjects
     logger.info("Encoding the  metadata of the books to vectors")
