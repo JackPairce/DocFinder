@@ -34,7 +34,7 @@ services:
   # Frontend service
   - type: web
     runtime: docker
-    name: docfind-frontend
+    name: DocFinder
     repo: https://github.com/JackPairce/DocFinder.git
     rootDir: frontend
     dockerfilePath: ./Dockerfile
