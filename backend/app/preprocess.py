@@ -134,7 +134,6 @@ if __name__ == "__main__":
 
     # for each book id get book contents (using get_book_id from file_operations) and encode it using Sentence Transformers (all-MiniLM-L6-v2) and save it in the column "Book_content_vector".
     logger.info("Encoding the Book content column to vectors")
-    os.mkdir("/data/content_vectors")
     for i in tqdm(
         range(0, data_lenght, CHUNKS_SIZE),
         total=data_lenght // CHUNKS_SIZE,
