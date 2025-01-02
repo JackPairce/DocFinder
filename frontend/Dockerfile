@@ -23,6 +23,8 @@ COPY --from=base /usr/src/app/next.config.mjs ./next.config.mjs
 
 ARG BACKEND_URL
 
+ENV BACKEND_URL=$BACKEND_URL
+
 EXPOSE 3000
 
 CMD ["npm", "run", "start"]
