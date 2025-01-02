@@ -144,7 +144,7 @@ if __name__ == "__main__":
             get_book_by_id
         )
         to_delete = target["content_vector"].apply(lambda x: x != "").to_numpy()
-        target = target[target["to_delete"]]
+        target = target[to_delete]
         target["content_vector"] = (
             target["content_vector"].apply(process_content).apply(process_text)
         )
