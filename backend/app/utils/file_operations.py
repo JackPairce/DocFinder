@@ -29,6 +29,7 @@ def download_file(url: str, path: str) -> None:
                 total=total_length,
                 unit="B",
                 unit_scale=True,
+                unit_divisor=CHUNK_SIZE,
             ):
                 file.write(data)
     except requests.exceptions.RequestException as e:
