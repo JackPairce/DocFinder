@@ -143,7 +143,7 @@ if __name__ == "__main__":
         target["content_vector"] = books_ids.iloc[i : i + CHUNKS_SIZE].apply(
             get_book_by_id
         )
-        to_delete = target["content_vector"].apply(lambda x: x != "").tu_numpy()
+        to_delete = target["content_vector"].apply(lambda x: x != "").to_numpy()
         target = target[target["to_delete"]]
         target["content_vector"] = (
             target["content_vector"].apply(process_content).apply(process_text)
