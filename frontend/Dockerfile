@@ -8,6 +8,10 @@ RUN git clone https://github.com/AimenSayoud/book_library.git .
 
 RUN npm install
 
+ARG BACKEND_URL
+
+ENV BACKEND_URL=$BACKEND_URL
+
 RUN npm run build
 
 RUN npm prune --production
@@ -20,10 +24,6 @@ COPY --from=base /usr/src/app/package.json .
 COPY --from=base /usr/src/app/.next ./.next
 COPY --from=base /usr/src/app/node_modules ./node_modules
 COPY --from=base /usr/src/app/next.config.mjs ./next.config.mjs
-
-ARG BACKEND_URL
-
-ENV BACKEND_URL=$BACKEND_URL
 
 EXPOSE 3000
 
