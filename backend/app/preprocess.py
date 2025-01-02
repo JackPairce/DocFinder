@@ -139,7 +139,7 @@ if __name__ == "__main__":
         total=data_lenght // CHUNKS_SIZE,
         desc="Download, Processing and saving book content vectors",
     ):
-        target = books_ids
+        target = books_ids[i : i + CHUNKS_SIZE].to_frame()
         target["content_vector"] = books_ids.iloc[i : i + CHUNKS_SIZE].apply(
             get_book_by_id
         )
